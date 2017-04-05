@@ -1,0 +1,27 @@
+{
+  "name": "sasara",
+  "version": "0.1.0",
+  "description": "notifies you of offers on Barter.vg",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/antigravities/sasara.git"
+  },
+  "author": "Alexandra Frock <https://alexandra.moe/>",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/antigravities/sasara/issues"
+  },
+  "homepage": "https://github.com/antigravities/sasara#readme",
+  "dependencies": {
+    "cheerio": "^0.22.0",
+    "feed-read-parser": "0.0.6",
+    "iconv-lite": "^0.4.15",
+    "request": "^2.81.0",
+    "steam-user": "^3.19.1",
+    "yargs": "^7.0.2"
+  }
+}
