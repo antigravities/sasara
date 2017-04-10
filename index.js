@@ -278,7 +278,5 @@ client.on("friendMessage", function(u,m){
     return;
   }
 
-  if( m.toLowerCase().indexOf("fpoll") > -1 ) return doPoll();
-
   client.chatMessage(u, "What? I'm sorry, I don't quite understand what you said. If you'd like to stop receiving messages, type 'stop'. To start again, type 'start'.");
 });
