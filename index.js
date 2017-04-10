@@ -70,12 +70,17 @@ var queue = [];
 var spPollDone = true;
 var queueInterval = null;
 
+var shouldBePolling = false;
+
 var database = [];
 if( fs.existsSync("sasara.db") ) database=JSON.parse(fs.readFileSync("sasara.db"));
 
 var client = new S();
 
 function doPoll(){
+
+  console.log("Polling!");
+
   shouldBePolling = true;
 
   queue = database.slice();
@@ -88,7 +93,7 @@ function doPoll(){
 
     if( current == undefined ) return spPollDone = true;
 
-    console.log("Polling " + current.barterID);
+    console.log("Polling https://barter.vg/u/" + current.barterID + " (" + client.users[current.steamID64].player_name + ", " + current.steamID64 + ")");
 
     feed("https://barter.vg/u/" + current.barterID + "/o/rss/", function(err, articles){
 
@@ -99,11 +104,12 @@ function doPoll(){
 
       for( let i=articles.length-1; i>0; i-- ){
         if( parseInt(articles[i].link.split("/")[6]) > current.lastOffer ){
-          if( ! current.firstTime && current.notify ) client.chatMessage(current.steamID64, articles[i].title + " (" + articles[i].content + ") " + articles[i].link);
+          if( (! current.firstTime) && current.notify ) client.chatMessage(current.steamID64, articles[i].title + " (" + articles[i].content + ") " + articles[i].link);
           current.lastOffer = parseInt(articles[i].link.split("/")[6]);
-          current.firstTime = false;
         }
       }
+
+      current.firstTime = false;
 
       fs.writeFileSync("sasara.db", JSON.stringify(database));
 
@@ -137,6 +143,8 @@ client.on("loggedOn", function(){
   console.log("Logged on to Steam.");
 
   client.setPersona(S.Steam.EPersonaState.Online);
+
+  client.gamesPlayed("notifies you of Barter.vg trade offers");
 
   if( pollInterval !== null ){
     clearInterval(pollInterval);
@@ -175,5 +183,39 @@ client.on("friendRelationship", function(u,r){
     fs.writeFileSync("sasara.db", JSON.stringify(database));
 
     client.chatMessage(u, "Yay! I've successfully linked you up with Barter user ID " + ret + ", so you'll receive chat messages whenever you get an offer, or when a person you've offered to accepts your offer. To temporarily stop messages, simply type 'stop', and to start them back up again, type 'start'. Easy! If you have any other questions, please talk to Alex here: https://steamcommunity.com/id/antigravities . Have fun, and good luck on your trades!")
+
+    doPoll();
   });
+});
+
+client.on("friendMessage", function(u,m){
+  if( m.toLowerCase() == "stop" ){
+    database.forEach(function(v,k){
+      if( v.steamID64 == u.toString() ){
+        database[k].notify = false; //just to be safe. can't remember right now if v is a ref to the item in the array
+        client.chatMessage(u, "Okay! I'll stop bothering you for now. If you'd like to start receiving messages again, let me know by typing 'start'.");
+        fs.writeFileSync("sasara.db", JSON.stringify(database));
+      }
+    });
+    return;
+  }
+
+  if( m.toLowerCase() == "start" ){
+    database.forEach(function(v,k){
+      if( v.steamID64 == u.toString() ){
+        database[k].notify = true;
+        client.chatMessage(u, "I'm going to notify you about offers again now! If you'd like to stop receiving messages, let me know by typing 'stop'.");
+        fs.writeFileSync("sasara.db", JSON.stringify(database));
+      }
+    });
+    return;
+  }
+
+  // haHAA
+  if( m.toLowerCase().indexOf("cute") > -1 ){
+    client.chatMessage(u, "C-cute? You t-think I'm c-cute? ♥");
+    return;
+  }
+
+  client.chatMessage(u, "What? I'm sorry, I don't quite understand what you said. If you'd like to stop receiving messages, type 'stop'. To start again, type 'start'.");
 });
