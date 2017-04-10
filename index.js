@@ -50,6 +50,8 @@ var S = require("steam-user");
 var request = require("request");
 var cheerio = require("cheerio");
 var feed = require("feed-read-parser");
+var Entities = require('html-entities').AllHtmlEntities;
+var entities = new Entities();
 
 var args = require("yargs")
   .usage("Usage: $0 [-a, --accountname] accountname [-p, --password] password (options...)")
@@ -77,6 +79,46 @@ if( fs.existsSync("sasara.db") ) database=JSON.parse(fs.readFileSync("sasara.db"
 
 var client = new S();
 
+// todo: optimize code better, reuse
+function offerToText(offer, current, oid){
+
+  var retn = entities.decode(offer.from_username) + " https://barter.vg/u/" + offer.from_user_id + " proposed an offer to you: ";
+
+  if( offer.from_and_or === null || offer.from_and_or == 0 ) retn+="all";
+  else retn+=offer.from_and_or;
+
+  retn+=" of their ";
+
+  if( offer.items.hasOwnProperty("from") ){
+    var itmtxts = [];
+    Object.keys(offer.items.from).forEach(function(v){
+      itmtxts.push(entities.decode(offer.items.from[v].title) + " (" + offer.items.from[v].user_reviews_positive + "% " + offer.items.from[v].tradeable + "⇄ " + offer.items.from[v].wishlist + "★ " + offer.items.from[v].cards + "🃏)");
+    });
+    retn+=itmtxts.join(", ") + " for ";
+  } else {
+    retn+="(no items) for ";
+  }
+
+  if( offer.to_and_or === null || offer.to_and_or == 0 ) retn+="all";
+  else retn+=offer.to_and_or;
+
+  retn+=" of your ";
+
+  if( offer.items.hasOwnProperty("to") ){
+    itmtxts = [];
+    Object.keys(offer.items.to).forEach(function(v){
+      itmtxts.push(entities.decode(offer.items.to[v].title) + " (" + offer.items.to[v].user_reviews_positive + "% " + offer.items.to[v].tradeable + "⇄ " + offer.items.to[v].wishlist + "★ " + offer.items.to[v].cards + "🃏)");
+    });
+    retn+=itmtxts.join(", ");
+  } else {
+    retn+="(no items)";
+  }
+
+  retn+=". Respond to this offer at https://barter.vg/u/" + current.barterID + "/o/" + oid;
+
+  return retn;
+}
+
 function doPoll(){
 
   console.log("Polling!");
@@ -102,9 +144,28 @@ function doPoll(){
         return spPollDone = true;
       }
 
-      for( let i=articles.length-1; i>0; i-- ){
+      for( let i=articles.length-1; i>=0; i-- ){
         if( parseInt(articles[i].link.split("/")[6]) > current.lastOffer ){
-          if( (! current.firstTime) && current.notify ) client.chatMessage(current.steamID64, articles[i].title + " (" + articles[i].content + ") " + articles[i].link);
+          if( (! current.firstTime) && current.notify ){
+            var oid = parseInt(articles[i].link.split("/")[6]);
+
+            // The user we request for doesn't matter. We still get a valid and correct JSON response anyway
+            // So we'll just use the admin's profile.
+
+            console.log("`- Requesting more info about offer " + oid);
+            request("https://barter.vg/u/a0/o/" + oid + "/json", function(e,r,b){
+              // Fall back to the "default"
+              if( e ) return client.chatMessage(current.steamID64, articles[i].title + " (" + articles[i].content + ") " + articles[i].link);
+
+              var b = JSON.parse(b);
+
+              // The user probably already knows about offers they sent themselves and offers they've already opened
+              if( b.from_user_id == current.barterID || b.to_opened == 1 ) return;
+
+              // Now formulate a response
+              client.chatMessage(current.steamID64, offerToText(b, current, oid));
+            });
+          }
           current.lastOffer = parseInt(articles[i].link.split("/")[6]);
         }
       }
@@ -216,6 +277,8 @@ client.on("friendMessage", function(u,m){
     client.chatMessage(u, "C-cute? You t-think I'm c-cute? ♥");
     return;
   }
+
+  if( m.toLowerCase().indexOf("fpoll") > -1 ) return doPoll();
 
   client.chatMessage(u, "What? I'm sorry, I don't quite understand what you said. If you'd like to stop receiving messages, type 'stop'. To start again, type 'start'.");
 });

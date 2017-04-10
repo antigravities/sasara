@@ -1,6 +1,6 @@
 {
   "name": "sasara",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "notifies you of offers on Barter.vg",
   "main": "index.js",
   "scripts": {
@@ -19,6 +19,7 @@
   "dependencies": {
     "cheerio": "^0.22.0",
     "feed-read-parser": "0.0.6",
+    "html-entities": "^1.2.0",
     "iconv-lite": "^0.4.15",
     "request": "^2.81.0",
     "steam-user": "^3.19.1",
