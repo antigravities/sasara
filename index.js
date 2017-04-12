@@ -114,7 +114,7 @@ function offerToText(offer, current, oid){
     retn+="(no items)";
   }
 
-  retn+=". Respond to this offer at https://barter.vg/u/" + current.barterID + "/o/" + oid;
+  retn+=". Respond to this offer at https://barter.vg/u/" + current.barterID + "/o/" + oid + "/.";
 
   return retn;
 }
