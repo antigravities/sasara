@@ -94,7 +94,7 @@ function offerToText(offer, current, oid){
     Object.keys(offer.items.from).forEach(function(v){
       itmtxts.push(entities.decode(offer.items.from[v].title) + " (" + offer.items.from[v].user_reviews_positive + "% " + offer.items.from[v].tradeable + "⇄ " + offer.items.from[v].wishlist + "★ " + offer.items.from[v].cards + "🃏)");
     });
-    retn+=itmtxts.join(", ") + " for ";
+    retn+=itmtxts.join("; ") + " for ";
   } else {
     retn+="(no items) for ";
   }
@@ -109,7 +109,7 @@ function offerToText(offer, current, oid){
     Object.keys(offer.items.to).forEach(function(v){
       itmtxts.push(entities.decode(offer.items.to[v].title) + " (" + offer.items.to[v].user_reviews_positive + "% " + offer.items.to[v].tradeable + "⇄ " + offer.items.to[v].wishlist + "★ " + offer.items.to[v].cards + "🃏)");
     });
-    retn+=itmtxts.join(", ");
+    retn+=itmtxts.join("; ");
   } else {
     retn+="(no items)";
   }
