@@ -92,9 +92,13 @@ function offerToText(offer, current, oid){
   if( offer.items.hasOwnProperty("from") ){
     var itmtxts = [];
     Object.keys(offer.items.from).forEach(function(v){
-      itmtxts.push(entities.decode(offer.items.from[v].title) + " (" + offer.items.from[v].user_reviews_positive + "% " + offer.items.from[v].tradeable + "⇄ " + offer.items.from[v].wishlist + "★ " + offer.items.from[v].cards + "🃏)");
+      var topush = entities.decode(offer.items.from[v].title);
+
+      if( ! current.hasOwnProperty("metadata") || current.metadata == true ) topush += " (" + offer.items.from[v].user_reviews_positive + "% " + offer.items.from[v].tradeable + "⇄ " + offer.items.from[v].wishlist + "★ " + offer.items.from[v].cards + "🃏)";
+
+      itmtxts.push(topush);
     });
-    retn+=itmtxts.join("; ") + " for ";
+    retn+=itmtxts.join(", ") + " for ";
   } else {
     retn+="(no items) for ";
   }
@@ -107,14 +111,18 @@ function offerToText(offer, current, oid){
   if( offer.items.hasOwnProperty("to") ){
     itmtxts = [];
     Object.keys(offer.items.to).forEach(function(v){
-      itmtxts.push(entities.decode(offer.items.to[v].title) + " (" + offer.items.to[v].user_reviews_positive + "% " + offer.items.to[v].tradeable + "⇄ " + offer.items.to[v].wishlist + "★ " + offer.items.to[v].cards + "🃏)");
+      var topush=entities.decode(offer.items.to[v].title);
+
+      if( ! current.hasOwnProperty("metadata") || current.metadata == true ) topush += " (" + offer.items.to[v].user_reviews_positive + "% " + offer.items.to[v].tradeable + "⇄ " + offer.items.to[v].wishlist + "★ " + offer.items.to[v].cards + "🃏)";
+
+      itmtxts.push(topush);
     });
-    retn+=itmtxts.join("; ");
+    retn+=itmtxts.join(", ");
   } else {
     retn+="(no items)";
   }
 
-  retn+=". Respond to this offer at https://barter.vg/u/" + current.barterID + "/o/" + oid + "/.";
+  retn+=". Respond to this offer at https://barter.vg/u/" + current.barterID + "/o/" + oid;
 
   return retn;
 }
@@ -267,6 +275,19 @@ client.on("friendMessage", function(u,m){
         database[k].notify = true;
         client.chatMessage(u, "I'm going to notify you about offers again now! If you'd like to stop receiving messages, let me know by typing 'stop'.");
         fs.writeFileSync("sasara.db", JSON.stringify(database));
+      }
+    });
+    return;
+  }
+
+  if( m.toLowerCase() == "togglemeta" ){
+    database.forEach(function(v,k){
+      if( v.steamID64 == u.toString() ){
+        if( ! database[k].hasOwnProperty("metadata") || database[k].metadata === true ) database[k].metadata = false;
+        else database[k].metadata = true;
+
+        if( database[k].metadata === true ) client.chatMessage(u, "Now showing metadata.");
+        else client.chatMessage(u, "Not showing metadata.");
       }
     });
     return;
