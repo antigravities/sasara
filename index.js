@@ -98,7 +98,7 @@ function offerToText(offer, current, oid){
 
       itmtxts.push(topush);
     });
-    retn+=itmtxts.join(", ") + " for ";
+    retn+=itmtxts.join("; ") + " for ";
   } else {
     retn+="(no items) for ";
   }
@@ -117,12 +117,12 @@ function offerToText(offer, current, oid){
 
       itmtxts.push(topush);
     });
-    retn+=itmtxts.join(", ");
+    retn+=itmtxts.join("; ");
   } else {
     retn+="(no items)";
   }
 
-  retn+=". Respond to this offer at https://barter.vg/u/" + current.barterID + "/o/" + oid;
+  retn+=". Respond to this offer at https://barter.vg/u/" + current.barterID + "/o/" + oid + "/";
 
   return retn;
 }
