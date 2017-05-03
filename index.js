@@ -174,7 +174,7 @@ function doPoll(){
             // The user we request for doesn't matter. We still get a valid and correct JSON response anyway
             // So we'll just use the admin's profile.
 
-            console.log("`- Requesting more info about offer " + oid);
+            console.log("`- Requesting more info about offer " + oid + " for user " + current.barterID);
             request("https://barter.vg/u/a0/o/" + oid + "/json", function(e,r,b){
               // Fall back to the "default"
               if( e ) return client.chatMessage(current.steamID64, articles[i].title + " (" + articles[i].content + ") " + articles[i].link);
