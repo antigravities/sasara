@@ -76,7 +76,7 @@ var shouldBePolling = false;
 
 console.log("Loading database...");
 
-var database = {};
+database = {};
 if( fs.existsSync("sasara.db") ){
   database=JSON.parse(fs.readFileSync("sasara.db"));
   if( database.constructor === Array ){
@@ -89,6 +89,10 @@ if( fs.existsSync("sasara.db") ){
     fs.writeFileSync("sasara.db", JSON.stringify(database));
     console.log("...done!");
   }
+}
+
+commit = function(){
+  fs.writeFileSync("sasara.db", JSON.stringify(database));
 }
 
 var client = new S();
@@ -271,35 +275,25 @@ client.on("friendRelationship", function(u,r){
   });
 });
 
+var C = require("./commands.js");
+
 client.on("friendMessage", function(u,m){
-  if( m.toLowerCase() == "stop" ){
-    database[u.toString()].notify = false;
-    client.chatMessage(u, "Okay! I'll stop bothering you for now. If you'd like to start receiving messages again, let me know by typing 'start'.");
-    fs.writeFileSync("sasara.db", JSON.stringify(database));
-    return;
-  }
-
-  if( m.toLowerCase() == "start" ){
-    database[u.toString()].notify = true;
-    client.chatMessage(u, "I'm going to notify you about offers again now! If you'd like to stop receiving messages, let me know by typing 'stop'.");
-    fs.writeFileSync("sasara.db", JSON.stringify(database));
-    return;
-  }
-
-  if( m.toLowerCase() == "togglemeta" ){
-    if( ! database[u.toString()].hasOwnProperty("metadata") || database[k].metadata === true ) database[k].metadata = false;
-    else database[u.toString()].metadata = true;
-
-    if( database[u.toString()].metadata ) client.chatMessage(u, "Now showing metadata.");
-    else client.chatMessage(u, "Not showing metadata.");
-    return;
-  }
-
   // haHAA
   if( m.toLowerCase().indexOf("cute") > -1 ){
     client.chatMessage(u, "C-cute? You t-think I'm c-cute? ♥");
     return;
   }
 
-  client.chatMessage(u, "What? I'm sorry, I don't quite understand what you said. If you'd like to stop receiving messages, type 'stop'. To start again, type 'start'.");
+  var a = m.trim().split(" ");
+  a[0] = a[0].toLowerCase();
+
+  var t = C.unknown;
+
+  if( C.hasOwnProperty(a[0]) ){
+    t=C[a[0]];
+  }
+
+  var r = t.callback(u, a, m);
+  if( typeof r == "string" ) client.chatMessage(u, r);
+
 });
