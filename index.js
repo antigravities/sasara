@@ -74,8 +74,22 @@ var queueInterval = null;
 
 var shouldBePolling = false;
 
-var database = [];
-if( fs.existsSync("sasara.db") ) database=JSON.parse(fs.readFileSync("sasara.db"));
+console.log("Loading database...");
+
+var database = {};
+if( fs.existsSync("sasara.db") ){
+  database=JSON.parse(fs.readFileSync("sasara.db"));
+  if( database.constructor === Array ){
+    console.log("Old >0.3.0 database found! Converting...");
+    var newDB = {};
+    database.forEach(function(v,k){
+      newDB[v.steamID64] = v;
+    });
+    database = newDB;
+    fs.writeFileSync("sasara.db", JSON.stringify(database));
+    console.log("...done!");
+  }
+}
 
 var client = new S();
 
@@ -133,13 +147,13 @@ function doPoll(){
 
   shouldBePolling = true;
 
-  queue = database.slice();
+  queue = Array.prototype.slice.call(Object.keys(database));
 
   queueInterval = setInterval(function(){
     if( queue.length == 0 ) clearInterval(queueInterval);
     if( ! spPollDone ) return;
 
-    var current = queue.pop();
+    var current = database[queue.pop()];
 
     if( current == undefined ) return spPollDone = true;
 
@@ -241,13 +255,13 @@ client.on("friendRelationship", function(u,r){
       return;
     }
 
-    database.push({
+    database[u.toString] = {
       steamID64: u.toString(),
       barterID: ret,
       notify: true,
       lastOffer: 0,
       firstTime: true
-    });
+    };
 
     fs.writeFileSync("sasara.db", JSON.stringify(database));
 
@@ -259,37 +273,25 @@ client.on("friendRelationship", function(u,r){
 
 client.on("friendMessage", function(u,m){
   if( m.toLowerCase() == "stop" ){
-    database.forEach(function(v,k){
-      if( v.steamID64 == u.toString() ){
-        database[k].notify = false; //just to be safe. can't remember right now if v is a ref to the item in the array
-        client.chatMessage(u, "Okay! I'll stop bothering you for now. If you'd like to start receiving messages again, let me know by typing 'start'.");
-        fs.writeFileSync("sasara.db", JSON.stringify(database));
-      }
-    });
+    database[u.toString()].notify = false;
+    client.chatMessage(u, "Okay! I'll stop bothering you for now. If you'd like to start receiving messages again, let me know by typing 'start'.");
+    fs.writeFileSync("sasara.db", JSON.stringify(database));
     return;
   }
 
   if( m.toLowerCase() == "start" ){
-    database.forEach(function(v,k){
-      if( v.steamID64 == u.toString() ){
-        database[k].notify = true;
-        client.chatMessage(u, "I'm going to notify you about offers again now! If you'd like to stop receiving messages, let me know by typing 'stop'.");
-        fs.writeFileSync("sasara.db", JSON.stringify(database));
-      }
-    });
+    database[u.toString()].notify = true;
+    client.chatMessage(u, "I'm going to notify you about offers again now! If you'd like to stop receiving messages, let me know by typing 'stop'.");
+    fs.writeFileSync("sasara.db", JSON.stringify(database));
     return;
   }
 
   if( m.toLowerCase() == "togglemeta" ){
-    database.forEach(function(v,k){
-      if( v.steamID64 == u.toString() ){
-        if( ! database[k].hasOwnProperty("metadata") || database[k].metadata === true ) database[k].metadata = false;
-        else database[k].metadata = true;
+    if( ! database[u.toString()].hasOwnProperty("metadata") || database[k].metadata === true ) database[k].metadata = false;
+    else database[u.toString()].metadata = true;
 
-        if( database[k].metadata === true ) client.chatMessage(u, "Now showing metadata.");
-        else client.chatMessage(u, "Not showing metadata.");
-      }
-    });
+    if( database[u.toString()].metadata ) client.chatMessage(u, "Now showing metadata.");
+    else client.chatMessage(u, "Not showing metadata.");
     return;
   }
 

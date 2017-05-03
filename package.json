@@ -1,6 +1,6 @@
 {
   "name": "sasara",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "notifies you of offers on Barter.vg",
   "main": "index.js",
   "scripts": {
