@@ -47,4 +47,4 @@ C.unknown = new Command("???", function(f,a,m){
   return "What? I'm sorry, I don't quite understand what you said. For help, type 'help'.";
 });
 
-module.exports = C;
+module.exports = { C: C, Command: Command };

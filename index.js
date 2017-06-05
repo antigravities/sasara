@@ -63,6 +63,7 @@ var args = require("yargs")
   .argv;
 
 func = require("./func.js");
+
 var doPoll = require("./poll.js");
 
 var pollIntervalValue = 0.5;
@@ -136,8 +137,7 @@ client.on("friendRelationship", function(u,r){
     database[u.toString()] = {
       steamID64: u.toString(),
       barterID: ret,
-      notify: true,
-      notifyon: "proposed,accepted"
+      notify: true
     };
 
     fs.writeFileSync("sasara.db", JSON.stringify(database));
@@ -148,7 +148,10 @@ client.on("friendRelationship", function(u,r){
   });
 });
 
-var C = require("./commands.js");
+commands = require("./commands.js");
+C = commands.C;
+
+email = require("./email-notify.js");
 
 client.on("friendMessage", function(u,m){
   // haHAA

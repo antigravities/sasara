@@ -60,3 +60,4 @@ typings/
 # Sasara
 sasara.db
 poll.time
+email.blacklist

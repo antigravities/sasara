@@ -17,12 +17,15 @@ module.exports = function(){
 
         var user = func.getDatabaseEntry(b[v].to_user_hex, database);
 
-        if( user != null && user.notify ){
+        if( user != null && ( user.notify || ( user.hasOwnProperty("email") && ( (! user.hasOwnProperty("emailnotify")) || user.emailnotify ) ) ) ){
           request("https://barter.vg/u/1a/o/" + v + "/json", function(e,r,b){
             if( e ) return;
             b=JSON.parse(b);
+            if( b.opened === 1 ) return;
             console.log("Notifying " + user.steamID64 + "...");
-            client.chatMessage(user.steamID64, func.offerToText(b, user, v));
+            if( user.notify ) client.chatMessage(user.steamID64, func.offerToText(b, user, v));
+
+            if( ! user.hasOwnProperty("emailnotify") || user.emailnotify ) email.offerMail(user.email, user.from_username, user.to_username, func.offerToText(b,user,v));
           });
         }
       });
