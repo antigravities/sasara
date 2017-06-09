@@ -86,6 +86,14 @@ database = {};
 if( fs.existsSync("sasara.db") ){
   console.log("Verifying database");
   database=JSON.parse(fs.readFileSync("sasara.db"));
+
+  // User.emailverify
+  Object.keys(database).forEach(function(v){
+    if( ! database[v].hasOwnProperty("emailverify") ){
+      console.log("Warning: user " + v + " did not have required emailverify key, setting to default of true");
+      database[v].emailverify = true;
+    }
+  });
 } else {
   console.log("Writing fresh database")
 }
@@ -137,7 +145,8 @@ client.on("friendRelationship", function(u,r){
     database[u.toString()] = {
       steamID64: u.toString(),
       barterID: ret,
-      notify: true
+      notify: true,
+      emailnotify: true
     };
 
     fs.writeFileSync("sasara.db", JSON.stringify(database));

@@ -13,7 +13,8 @@ module.exports.verifyMail = function(email, verifyCode){
     from: "Sasara <no@spam.email>",
     to: email,
     subject: "[Sasara] Please verify your email address",
-    html: "<div style='font-family: \"Helvetica\";'>Hi! I just wanted to make sure you were the real owner of this email address. To finish registering, enter the following code:<br><h1 style='text-align: center;'>" + verifyCode + "</h1><br>If you didn't ask for this, simply ignore us! Someone may have entered in the wrong email.<hr><b>Sasara</b> notifies you about new offers on <a href='https://barter.vg/'>Barter.vg</a>. <a href='https://sasarajs.antigravities.net/unsubscribe.php'>Never email me again!</a></div>"
+    html: "<div style='font-family: \"Helvetica\";'>Hi! I just wanted to make sure you were the real owner of this email address. To finish registering, enter the following code:<br><h1 style='text-align: center;'>" + verifyCode + "</h1><br>If you didn't ask for this, simply ignore us or click the <b>never email me again</b> link below. Someone may have entered in the wrong email.<hr><b>Sasara</b> notifies you about new offers on <a href='https://barter.vg/'>Barter.vg</a>. <a href='https://sasarajs.antigravities.net/unsubscribe.php'>Never email me again!</a></div>",
+    text: "Hi! I just wanted to make sure you were the real owner of this email address. To finish registering, enter the following code:\n\n" + verifyCode + "\n\nIf you didn't ask for this, simply ignore us or click the \"never email me again\" link below. Someone may have entered in the wrong email.\n\n--\nSASARA notifies you about new offers on https://barter.vg/. Never email me again: https://sasarajs.antigravities.net/unsubscribe.php",
   }, (e,i) => {
     console.log(e);
   });
@@ -27,7 +28,8 @@ module.exports.offerMail = function(email, userFrom, userTo, offerText){
     from: 'Sasara <no@spam.email>',
     to: email,
     subject: "[Sasara] New trade offer from " + userFrom,
-    html: "<div style='font-family: \"Helvetica\";'>Hi " + userTo + ",<br><br><blockquote><i>" + offerText + "</i></blockquote><br><hr><b>Sasara</b> notifies you about new offers on <a href='https://barter.vg/'>Barter.vg</a>. <a href='https://sasarajs.antigravities.net/unsubscribe.php'>Never email me again!</a></div>"
+    html: "<div style='font-family: \"Helvetica\";'>Hi " + userTo + ",<br><br><blockquote><i>" + offerText + "</i></blockquote><br><hr><b>Sasara</b> notifies you about new offers on <a href='https://barter.vg/'>Barter.vg</a>. <a href='https://sasarajs.antigravities.net/unsubscribe.php'>Never email me again!</a></div>",
+    text: "Hi " + userTo + ",\n\n" + offerText + "\n\nSASARA notifies you about new offers on https://barter.vg/. Never email me again: https://sasarajs.antigravities.net/unsubscribe.php"
   }, (e,i) => {
     console.log(e);
   });
@@ -51,7 +53,7 @@ C.email = new commands.Command("Set an address for Sasara to send emails to.", f
   }
 
   var code = pick() + pick() + pick() + pick() + pick();
-  
+
   verify[f.toString()] = { code: code, mail: a[1] };
   module.exports.verifyMail(a[1], code);
 
@@ -59,7 +61,7 @@ C.email = new commands.Command("Set an address for Sasara to send emails to.", f
     delete verify[f.toString()];
   }, 300000);
 
-  return "Thanks for registering! All you have to do now is enter the code I just sent to your email address after the word 'verify', like this: verify 5agH8 . It expires in 5 minutes.";
+  return "Thanks for registering! All you have to do now is enter the code I just sent to your email address after the word 'verify', like this: verify code . It expires in 5 minutes.";
 });
 
 C.verify = new commands.Command("Verify your email address.", function(f,a,m){
