@@ -89,9 +89,9 @@ if( fs.existsSync("sasara.db") ){
 
   // User.emailverify
   Object.keys(database).forEach(function(v){
-    if( ! database[v].hasOwnProperty("emailverify") ){
-      console.log("Warning: user " + v + " did not have required emailverify key, setting to default of true");
-      database[v].emailverify = true;
+    if( ! database[v].hasOwnProperty("emailnotify") ){
+      console.log("Warning: user " + v + " did not have required emailnotify key, setting to default of true");
+      database[v].emailnotify = true;
     }
   });
 } else {
@@ -124,7 +124,8 @@ client.on("loggedOn", function(){
   pollInterval = setInterval(function(){ doPoll(database, client); }, pollIntervalValue*60000);
 });
 
-client.on("friendRelationship", function(u,r){
+function addFriend(u,r){
+  console.log("addFriend()");
   if( r != S.Steam.EFriendRelationship.RequestRecipient ) return;
 
   client.addFriend(u);
@@ -155,12 +156,22 @@ client.on("friendRelationship", function(u,r){
 
     doPoll(database, client);
   });
-});
+}
+
+client.on("friendRelationship", addFriend);
 
 commands = require("./commands.js");
 C = commands.C;
 
 email = require("./email-notify.js");
+
+client.on("friendsList", function(){
+	Object.keys(client.myFriends).forEach(function(v){
+		if (client.myFriends[v] == S.Steam.EFriendRelationship.RequestRecipient) {
+			addFriend(v, client.myFriends[v]);
+		}
+	});
+});
 
 client.on("friendMessage", function(u,m){
   // haHAA

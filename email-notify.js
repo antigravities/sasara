@@ -5,18 +5,20 @@ var tper = nodemailer.createTransport({
   newline: 'unix'
 });
 
+var greetings = [ "Hey", "Konnichiwa", "Guten tag", "Hallo", "What's up", "Howdy", "Hi" ];
+
 module.exports = {};
 
 module.exports.verifyMail = function(email, verifyCode){
   if( JSON.parse(fs.readFileSync("email.blacklist")).includes(email) ) return;
   tper.sendMail({
-    from: "Sasara <no@spam.email>",
+    from: "Sasara <sasara@antigravities.net>",
     to: email,
     subject: "[Sasara] Please verify your email address",
-    html: "<div style='font-family: \"Helvetica\";'>Hi! I just wanted to make sure you were the real owner of this email address. To finish registering, enter the following code:<br><h1 style='text-align: center;'>" + verifyCode + "</h1><br>If you didn't ask for this, simply ignore us or click the <b>never email me again</b> link below. Someone may have entered in the wrong email.<hr><b>Sasara</b> notifies you about new offers on <a href='https://barter.vg/'>Barter.vg</a>. <a href='https://sasarajs.antigravities.net/unsubscribe.php'>Never email me again!</a></div>",
-    text: "Hi! I just wanted to make sure you were the real owner of this email address. To finish registering, enter the following code:\n\n" + verifyCode + "\n\nIf you didn't ask for this, simply ignore us or click the \"never email me again\" link below. Someone may have entered in the wrong email.\n\n--\nSASARA notifies you about new offers on https://barter.vg/. Never email me again: https://sasarajs.antigravities.net/unsubscribe.php",
+    html: "<div style='font-family: \"Helvetica\";'>" + greetings[Math.floor(Math.random()*greetings.length)] + "! I just wanted to make sure you were the real owner of this email address. To finish registering, enter the following code:<br><h1 style='text-align: center;'>" + verifyCode + "</h1><br>If you didn't ask for this, simply ignore us or click the <b>never email me again</b> link below. Someone may have entered in the wrong email.<hr><b>Sasara</b> notifies you about new offers on <a href='https://barter.vg/'>Barter.vg</a>. <a href='https://sasarajs.antigravities.net/unsubscribe.php'>Never email me again!</a></div>",
+    text: greetings[Math.floor(Math.random()*greetings.length)] + "! I just wanted to make sure you were the real owner of this email address. To finish registering, enter the following code:\n\n" + verifyCode + "\n\nIf you didn't ask for this, simply ignore us or click the \"never email me again\" link below. Someone may have entered in the wrong email.\n\n--\nSASARA notifies you about new offers on https://barter.vg/. Never email me again: https://sasarajs.antigravities.net/unsubscribe.php",
   }, (e,i) => {
-    console.log(e);
+    if( e ) console.log(e);
   });
 }
 
@@ -25,13 +27,13 @@ module.exports.verify = {};
 module.exports.offerMail = function(email, userFrom, userTo, offerText){
   if( JSON.parse(fs.readFileSync("email.blacklist")).includes(email) ) return;
   tper.sendMail({
-    from: 'Sasara <no@spam.email>',
+    from: 'Sasara <sasara@antigravities.net>',
     to: email,
     subject: "[Sasara] New trade offer from " + userFrom,
-    html: "<div style='font-family: \"Helvetica\";'>Hi " + userTo + ",<br><br><blockquote><i>" + offerText + "</i></blockquote><br><hr><b>Sasara</b> notifies you about new offers on <a href='https://barter.vg/'>Barter.vg</a>. <a href='https://sasarajs.antigravities.net/unsubscribe.php'>Never email me again!</a></div>",
-    text: "Hi " + userTo + ",\n\n" + offerText + "\n\nSASARA notifies you about new offers on https://barter.vg/. Never email me again: https://sasarajs.antigravities.net/unsubscribe.php"
+    html: "<div style='font-family: \"Helvetica\";'>" + greetings[Math.floor(Math.random()*greetings.length)] + " " + userTo + ",<br><br><blockquote><i>" + offerText + "</i></blockquote><br><hr><b>Sasara</b> notifies you about new offers on <a href='https://barter.vg/'>Barter.vg</a>. <a href='https://sasarajs.antigravities.net/unsubscribe.php'>Never email me again!</a></div>",
+    text: greetings[Math.floor(Math.random()*greetings.length)] + userTo + ",\n\n" + offerText + "\n\nSASARA notifies you about new offers on https://barter.vg/. Never email me again: https://sasarajs.antigravities.net/unsubscribe.php"
   }, (e,i) => {
-    console.log(e);
+    if( e ) console.log(e);
   });
 }
 

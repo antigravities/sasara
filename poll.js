@@ -16,7 +16,7 @@ module.exports = function(){
         console.log("Discovered offer " + v + " (" + b[v].from_user_hex + " -> " + b[v].to_user_hex + ")");
 
         if( b[v].to_status != "pending" ){
-          console.log("fixme: This is an accepted offer");
+          console.log("fixme: This is a non-pending (accepted?) offer");
           return;
         }
 
@@ -29,8 +29,7 @@ module.exports = function(){
             if( b.opened === 1 ) return;
             console.log("Notifying " + user.steamID64 + "...");
             if( user.notify ) client.chatMessage(user.steamID64, func.offerToText(b, user, v));
-
-            if( ! user.hasOwnProperty("emailnotify") || user.emailnotify ) email.offerMail(user.email, b.from_username, b.to_username, func.offerToText(b,user,v));
+            if( user.emailnotify ) email.offerMail(user.email, b.from_username, b.to_username, func.offerToText(b,user,v));
           });
         }
       });
